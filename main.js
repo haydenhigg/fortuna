@@ -32,13 +32,14 @@ fs.createReadStream('./quotes.csv')
 const fastify = require('fastify')({
   logger: true
 });
+const prefix = '/fortuna'; // TODO: use fastify prefix with plugin
 
 fastify.register(require('@fastify/cookie'));
 fastify.register(require('./session.js'));
 
 const sessions = {};
 
-fastify.get('/daily', function (request, reply) {
+fastify.get(`${prefix}/daily`, function (request, reply) {
   if (!Object.hasOwn(sessions, request.token)) {
     let quote;
     do {
@@ -58,7 +59,7 @@ fastify.get('/daily', function (request, reply) {
   reply.send(Object.assign(requestDetails, sessions[request.token]));
 });
 
-fastify.listen({ port: 3000 }, function (err, address) {
+fastify.listen({ port: 8012 }, function (err, address) {
   if (err) {
     fastify.log.error(err);
     process.exit(1);
