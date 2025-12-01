@@ -42,7 +42,7 @@ fastify.register(require('./session.js'));
 
 const aiClient = new OpenAI();
 
-fastify.get(`${prefix}/new`, async (_, reply) => {
+fastify.get(`${prefix}/new`, async (request, reply) => {
   // if (!Object.hasOwn(sessions, request.token)) {
   //   let quote;
   //   do {
