@@ -32,15 +32,12 @@
 const OpenAI = require('openai');
 
 const aiClient = new OpenAI();
-const aiModel = 'gpt-5-mini';
-const aiPrompt = 'Write a short, pithy, and profound comment on philosophy or psychology in the style of a fortune cookie.';
-
-let quote;
+var quote;
 
 async function newAIResponse() {
   const quoteResponse = await aiClient.responses.create({
-    model: aiModel,
-    input: aiPrompt
+    model: 'gpt-5-mini',
+    input: 'Write a short, pithy, and profound comment on philosophy or psychology in the style of a fortune cookie. Don\'t use any semicolons or em dashes.'
   });
 
   quote = quoteResponse.output_text;
