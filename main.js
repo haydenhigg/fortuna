@@ -1,34 +1,35 @@
-// load quotes CSV
-const { parse } = require('csv-parse');
-const fs = require('fs');
+// // load quotes CSV
+// const { parse } = require('csv-parse');
+// const fs = require('fs');
 
-const parser = parse({
-  columns: true,
-  skip_empty_lines: true
-});
-const quotes = [];
+// const parser = parse({
+//   columns: true,
+//   skip_empty_lines: true
+// });
+// const quotes = [];
 
-parser
-  .on('readable', () => {
-    let record;
-    while (record = parser.read()) {
-      quotes.push(record);
-    }
-  })
-  .on('error', (err) => {
-    console.error(err);
-  });
+// parser
+//   .on('readable', () => {
+//     let record;
+//     while (record = parser.read()) {
+//       quotes.push(record);
+//     }
+//   })
+//   .on('error', (err) => {
+//     console.error(err);
+//   });
 
-fs.createReadStream('./quotes.csv')
-  .pipe(parser)
-  .on('end', () => {
-    console.log('loaded quotes.csv');
-  })
-  .on('error', (err) => {
-    console.error(err);
-  });
+// fs.createReadStream('./quotes.csv')
+//   .pipe(parser)
+//   .on('end', () => {
+//     console.log('loaded quotes.csv');
+//   })
+//   .on('error', (err) => {
+//     console.error(err);
+//   });
 
 // start server
+const OpenAI = require('openai');
 const fastify = require('fastify')({
   logger: true
 });
@@ -39,7 +40,9 @@ fastify.register(require('./session.js'));
 
 // const sessions = {};
 
-fastify.get(`${prefix}/daily`, function (request, reply) {
+const aiClient = new OpenAI();
+
+fastify.get(`${prefix}/new`, async (_, reply) => {
   // if (!Object.hasOwn(sessions, request.token)) {
   //   let quote;
   //   do {
@@ -51,12 +54,18 @@ fastify.get(`${prefix}/daily`, function (request, reply) {
   //   };
   // }
 
-  let quote;
-  do {
-    quote = quotes[Math.floor(Math.random() * quotes.length)];
-  } while (!quote.keywords.includes('life') || quote.keywords.includes('love') || quote.keywords.includes('bible') || quote.keywords.includes('faith'));
+  // let quote;
+  // do {
+  //   quote = quotes[Math.floor(Math.random() * quotes.length)];
+  // } while (!quote.keywords.includes('philosophy') || quote.keywords.includes('love') || quote.keywords.includes('bible') || quote.keywords.includes('faith'));
 
-  delete quote.keywords;
+  // delete quote.keywords;
+
+  const quoteResponse = await aiClient.responses.create({
+    model: 'gpt-5-mini',
+    input: 'Write a short, pithy, and profound sentence comment on philosophy or psychology in the style of a fortune cookie.',
+  });
+  const quote = quoteResponse.output_text;
 
   const requestDetails = {
     timestamp: new Date(),
@@ -64,7 +73,7 @@ fastify.get(`${prefix}/daily`, function (request, reply) {
   };
 
   // reply.send(Object.assign(requestDetails, sessions[request.token]));
-  reply.send(Object.assign(requestDetails, quote));
+  reply.send(Object.assign(requestDetails, { quote }));
 });
 
 fastify.listen({ port: 8012 }, function (err, address) {
