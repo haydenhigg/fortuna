@@ -32,14 +32,23 @@
 const OpenAI = require('openai');
 
 const aiClient = new OpenAI();
+
 var quote;
+var isFetchingQuote;
 
 async function newAIResponse() {
+  if (isFetchingQuote) {
+    return;
+  }
+
+  isFetchingQuote = true;
+
   const response = await aiClient.responses.create({
     model: 'gpt-5-mini',
     input: 'Write a short, pithy, vague prediction in the style of a fortune cookie. Don\'t use any semicolons or em dashes.'
   });
 
+  isFetchingQuote = false;
   quote = response.output_text;
 }
 
