@@ -37,7 +37,7 @@ var quote;
 async function newAIResponse() {
   const quoteResponse = await aiClient.responses.create({
     model: 'gpt-5-mini',
-    input: 'Write a short, pithy, and profound comment on philosophy or psychology in the style of a fortune cookie. Don\'t use any semicolons or em dashes.'
+    input: 'Write a short, pithy, profound, yet grounded comment on philosophy or psychology in the style of a fortune cookie. Don\'t use any semicolons or em dashes.'
   });
 
   quote = quoteResponse.output_text;
