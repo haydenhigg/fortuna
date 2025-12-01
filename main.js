@@ -28,52 +28,49 @@
 //     console.error(err);
 //   });
 
-// start server
+// initialize AI client
 const OpenAI = require('openai');
+
+const aiClient = new OpenAI();
+const aiModel = 'gpt-5-mini';
+const aiPrompt = 'Write a short, pithy, and profound comment on philosophy or psychology in the style of a fortune cookie.';
+
+let quote;
+
+async function newAIResponse() {
+  const quoteResponse = await aiClient.responses.create({
+    model: aiModel,
+    input: aiPrompt
+  });
+
+  quote = quoteResponse.output_text;
+}
+
+newAIResponse();
+
+// start server
 const fastify = require('fastify')({
   logger: true
 });
-const prefix = '/fortuna'; // TODO: use fastify prefix with plugin
+const prefix = '/fortuna'; // TODO: use plugin prefix
 
 fastify.register(require('@fastify/cookie'));
 fastify.register(require('./session.js'));
 
 // const sessions = {};
 
-const aiClient = new OpenAI();
-
 fastify.get(`${prefix}/new`, async (request, reply) => {
   // if (!Object.hasOwn(sessions, request.token)) {
-  //   let quote;
-  //   do {
-  //     quote = quotes[Math.floor(Math.random() * quotes.length)];
-  //   } while (quote.keywords.includes('bible') || quote.keywords.includes('faith'));
-
-  //   sessions[request.token] = {
-  //     quote: `${quote.quote} - ${quote.author}`
-  //   };
+  //   sessions[request.token] = { quote };
   // }
 
-  // let quote;
-  // do {
-  //   quote = quotes[Math.floor(Math.random() * quotes.length)];
-  // } while (!quote.keywords.includes('philosophy') || quote.keywords.includes('love') || quote.keywords.includes('bible') || quote.keywords.includes('faith'));
-
-  // delete quote.keywords;
-
-  const quoteResponse = await aiClient.responses.create({
-    model: 'gpt-5-mini',
-    input: 'Write a short, pithy, and profound sentence comment on philosophy or psychology in the style of a fortune cookie.',
-  });
-  const quote = quoteResponse.output_text;
-
-  const requestDetails = {
+  reply.send({
     timestamp: new Date(),
-    token: request.token
-  };
+    token: request.token,
+    quote // sessions[request.token]
+  });
 
-  // reply.send(Object.assign(requestDetails, sessions[request.token]));
-  reply.send(Object.assign(requestDetails, { quote }));
+  newAIResponse();
 });
 
 fastify.listen({ port: 8012 }, function (err, address) {
