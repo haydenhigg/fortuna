@@ -17,7 +17,7 @@ async function refreshFortune() {
 
   const response = await aiClient.responses.create({
     model: 'gpt-5-mini',
-    instructions: 'You write short, pithy comments in the style of a fortune cookie. Never use a semicolon or an em dash.',
+    instructions: 'You write short, pithy, interesting comments in the style of a fortune cookie.',
     input: `This is a hexagram: ${getHexagram()}. Write a grounded one-line prediction or nugget of wisdom given this information.`,
     store: false
   });
