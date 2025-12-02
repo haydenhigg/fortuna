@@ -1,4 +1,4 @@
-// initialize AI client
+// initialize fortune generator
 const OpenAI = require('openai');
 const { getHexagram } = require('./fortuna.js');
 
